@@ -31,7 +31,7 @@ import com.wangzhe.util.keyUtil;
 
 @Controller
 @EnableWebMvc
-public class UserController {
+public class UserController extends BaseController{
 	@Autowired
 	private UserService userService;
 	@Autowired

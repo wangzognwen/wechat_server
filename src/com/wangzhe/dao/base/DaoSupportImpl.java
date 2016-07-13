@@ -2,12 +2,16 @@ package com.wangzhe.dao.base;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Example;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
@@ -43,6 +47,30 @@ public class DaoSupportImpl<T> implements DaoSupport<T>{
 	@SuppressWarnings("unchecked")
 	public List<T> getAllByParams(T t) {
 		return sessionFactory.getCurrentSession().createCriteria(clazz).add(Example.create(t)).list();
+	}
+	
+	public T getTByParams(Map<String, Object> params) {
+		List<T> results = getAllByParams(params);
+		if(results != null && results.size() > 0){
+			return results.get(0);
+		}
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<T> getAllByParams(Map<String, Object> params) {
+		Criteria criteria = currentSession().createCriteria(clazz);
+		if(params != null){
+			for(String key : params.keySet()){
+				if(key.equals("modifyDate")){
+					criteria.addOrder(Order.asc("modifyDate"))
+						.add(Restrictions.gt("modifyDate", params.get(key)));
+				}else {
+					criteria.add(Restrictions.eq(key, params.get(key)));
+				}
+			}
+		}
+		return criteria.list();
 	}
 
 	public void updateObj(T t) {
@@ -87,7 +115,5 @@ public class DaoSupportImpl<T> implements DaoSupport<T>{
 	public final Session currentSession() {
 		return sessionFactory.getCurrentSession();
 	}
-
-	
 	
 }

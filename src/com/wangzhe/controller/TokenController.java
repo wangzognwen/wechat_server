@@ -19,7 +19,7 @@ public class TokenController {
 
 	@RequestMapping(path = "/newToken")
 	public @ResponseBody TokenResponse refreshToken(@RequestParam("token") String oldToken){
-		TokenResponse tokenResponse = tokenService.checkToken(oldToken);
+		TokenResponse tokenResponse = tokenService.refreshToken(oldToken);
 		return tokenResponse;
 	}
 }

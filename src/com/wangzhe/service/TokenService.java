@@ -8,5 +8,7 @@ import com.wangzhe.response.TokenResponse;
 public interface TokenService {
 	public String newToken(String userName);
 	
-	public TokenResponse checkToken(String token);
+	public int checkToken(String token);
+	
+	public TokenResponse refreshToken(String token);
 }

@@ -2,7 +2,6 @@ package com.wangzhe.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
-
 import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -18,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.wangzhe.bean.UserBean;
+import com.wangzhe.response.BaseResponse;
 import com.wangzhe.response.TokenResponse;
 import com.wangzhe.util.keyUtil;
 
@@ -36,7 +36,7 @@ public class TokenServiceImpl implements TokenService{
 	}
 	
 	@Transactional
-	public TokenResponse checkToken(String token){
+	public TokenResponse refreshToken(String token){
 		TokenResponse tokenResponse = null;
 		try {
 			@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -59,5 +59,29 @@ public class TokenServiceImpl implements TokenService{
 		}
 		tokenResponse = new TokenResponse(2, "token_expired", null);
 		return tokenResponse;
+	}
+
+	@Transactional
+	public int checkToken(String token) {
+		int code = BaseResponse.TOKEN_INVALID;
+		try {
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			Jwt<Header, Claims> jwt = Jwts.parser().setSigningKey(keyUtil.getPublicKey()).parse(token);
+			String userName = (String) jwt.getBody().get(UserBean.USERNAME);
+			Long expTime = (Long) jwt.getBody().get("tokenExpired");
+			if(userName == null || expTime == null || !userService.isUserExist(userName)){
+				code = BaseResponse.TOKEN_INVALID;			
+			}else if(expTime < System.currentTimeMillis()){  //token已经过期了
+				code = BaseResponse.TOKEN_EXPIRED;
+			}else {
+				code = 0;
+			}
+		}catch (SignatureException e) {
+			LOGGER.error(e.getMessage());
+		}catch (JwtException e) {
+			LOGGER.error(e.getMessage());
+		}
+		
+		return code;
 	}
 }
