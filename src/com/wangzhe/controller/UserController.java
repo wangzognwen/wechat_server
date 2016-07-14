@@ -11,6 +11,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import javax.validation.Valid;
 
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -27,6 +28,7 @@ import com.wangzhe.net.Xmpp;
 import com.wangzhe.response.BaseResponse;
 import com.wangzhe.response.LoginResponse;
 import com.wangzhe.response.RegisterResponse;
+import com.wangzhe.response.UpdateUserResponse;
 import com.wangzhe.service.TokenService;
 import com.wangzhe.service.UserService;
 import com.wangzhe.util.keyUtil;
@@ -79,22 +81,25 @@ public class UserController extends BaseController{
 	}
 	
 	@RequestMapping(value="/updateUser", method=RequestMethod.POST)
-	public @ResponseBody BaseResponse updateUser(@RequestParam("userName") String userName, 
+	public @ResponseBody UpdateUserResponse updateUser(@RequestParam("userName") String userName, 
 			@RequestParam("field") String field, @RequestParam("value") Object value){
-		BaseResponse response = null;
+		UpdateUserResponse response = null;
 		boolean canUpdate = true;
-		if(field.equals("") || field.equals(UserBean.USERNAME) || field.equals(UserBean.ID)){
-			response = new BaseResponse(1, "refuse_modify");
+		if(field.equals("") || field.equals(UserBean.USERNAME) || field.equals(UserBean.ID)
+				|| field.equals(UserBean.CREATEDATE) || field.equals(UserBean.MODIFYDATE)){
+			response = new UpdateUserResponse(1, "refuse_modify", null);
 			canUpdate = false;
 		}else if(field.equals(UserBean.PASSWORD)){
 			String passWord = (String) value;
 			if(passWord.length() < 6 || passWord.length() > 16){
-				response = new BaseResponse(2, "modified_value_invalid");
+				response = new UpdateUserResponse(2, "modified_value_invalid", null);
 				canUpdate = false;
 			}
 		}
+		
 		if(canUpdate){
-			UserBean userBean = new UserBean();
+			UserBean userBean = userService.updateUser(userName, field, value);
+			response = new UpdateUserResponse(0, "success", userBean);
 		}
 		
 		return response;

@@ -104,6 +104,15 @@ public class UserServiceImpl implements UserService{
 		}
 		return user.getHeadUrl();
 	}
+	
+	@Transactional
+	public UserBean updateUser(String userName, String field, Object value) {
+		userDao.updateUser(userName, field, value);
+		UserBean userBean = new UserBean();
+		userBean.setUserName(userName);
+		userBean = getUserByParams(userBean);
+		return userBean;
+	}
 
 	
 

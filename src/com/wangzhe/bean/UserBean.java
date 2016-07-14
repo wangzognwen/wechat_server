@@ -30,6 +30,8 @@ public class UserBean {
 	public static final String BIRTHDAY = "birthday";
 	public static final String TYPE ="type";
 	public static final String TELEPHONE = "telephone";
+	public static final String CREATEDATE = "createDate";
+	public static final String MODIFYDATE = "modifyDate";
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -39,7 +41,7 @@ public class UserBean {
     private String userName;// 用户名
 	@Length(min = 6, max = 16)
     private String passWord;// 密码
-    private String nickname;// 昵称
+    private String nickName;// 昵称
     private String telephone;// 手机号码
     private String headUrl;// 头像
     private String signature;// 签名
@@ -83,12 +85,12 @@ public class UserBean {
 	}
 
 	
-	public String getNickname() {
-		return nickname;
+	public String getNickName() {
+		return nickName;
 	}
 
-	public void setNickname(String nickname) {
-		this.nickname = nickname;
+	public void setNickName(String nickName) {
+		this.nickName = nickName;
 	}
 
 	

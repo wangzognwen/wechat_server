@@ -48,4 +48,11 @@ public class UserDao extends DaoSupportImpl<UserBean> {
 		return (UserBean) criteria.uniqueResult();
 	}
 	
+	public void updateUser(String userName, String field, Object value){
+		Query query = currentSession().createQuery("update UserBean set "
+				+ field + " = \'" + value + "\', modifyDate = " + System.currentTimeMillis()
+				+ " where userName = \'" + userName + "\'");
+		query.executeUpdate();
+	}
+	
 }

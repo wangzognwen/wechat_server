@@ -19,7 +19,7 @@ SET FOREIGN_KEY_CHECKS=0;
 -- Table structure for `wcuser`
 -- ----------------------------
 DROP TABLE IF EXISTS `wcuser`;
-CREATE TABLE `wcuser` (
+CREATE TABLE `wcUser` (
   `userId` int(11) NOT NULL AUTO_INCREMENT,
   `userName` varchar(32) NOT NULL,
   `passWord` varchar(256) NOT NULL,

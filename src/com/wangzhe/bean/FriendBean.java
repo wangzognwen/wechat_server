@@ -12,7 +12,7 @@ import javax.persistence.Table;
  */
 
 @Entity
-@Table(name="wcFriend")
+@Table(name="wcfriend")
 public class FriendBean{
 	public static final String FRIEND_ID = "friendId";
 	public static final String OWNER_NAME = "ownerName";
