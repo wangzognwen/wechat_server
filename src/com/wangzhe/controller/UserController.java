@@ -1,6 +1,8 @@
 package com.wangzhe.controller;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
@@ -16,6 +18,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
@@ -57,7 +60,7 @@ public class UserController extends BaseController{
 	}
 	
 	@RequestMapping(value="/addUser", method=RequestMethod.POST)
-	public @ResponseBody BaseResponse addUser(@Valid @ModelAttribute("user") UserBean userBean, BindingResult bindingResult){
+	public @ResponseBody RegisterResponse addUser(@Valid @ModelAttribute("user") UserBean userBean, BindingResult bindingResult){
 		RegisterResponse response = null;
 		if(bindingResult.hasErrors()){
 			FieldError fieldError = bindingResult.getFieldError();
@@ -72,6 +75,28 @@ public class UserController extends BaseController{
 		}else{
 			response = new RegisterResponse(2, "user_already_existed", null);
 		}
+		return response;
+	}
+	
+	@RequestMapping(value="/updateUser", method=RequestMethod.POST)
+	public @ResponseBody BaseResponse updateUser(@RequestParam("userName") String userName, 
+			@RequestParam("field") String field, @RequestParam("value") Object value){
+		BaseResponse response = null;
+		boolean canUpdate = true;
+		if(field.equals("") || field.equals(UserBean.USERNAME) || field.equals(UserBean.ID)){
+			response = new BaseResponse(1, "refuse_modify");
+			canUpdate = false;
+		}else if(field.equals(UserBean.PASSWORD)){
+			String passWord = (String) value;
+			if(passWord.length() < 6 || passWord.length() > 16){
+				response = new BaseResponse(2, "modified_value_invalid");
+				canUpdate = false;
+			}
+		}
+		if(canUpdate){
+			UserBean userBean = new UserBean();
+		}
+		
 		return response;
 	}
 	

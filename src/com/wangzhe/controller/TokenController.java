@@ -13,7 +13,7 @@ import com.wangzhe.service.TokenService;
 import com.wangzhe.service.TokenServiceImpl;
 
 @Controller
-public class TokenController {
+public class TokenController extends BaseController{
 	@Autowired
 	private TokenService tokenService;
 
