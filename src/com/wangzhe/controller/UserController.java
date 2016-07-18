@@ -2,12 +2,14 @@ package com.wangzhe.controller;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 
@@ -28,6 +30,8 @@ import com.wangzhe.net.Xmpp;
 import com.wangzhe.response.BaseResponse;
 import com.wangzhe.response.LoginResponse;
 import com.wangzhe.response.RegisterResponse;
+import com.wangzhe.response.SearchUserResponse;
+import com.wangzhe.response.SyncUserResponse;
 import com.wangzhe.response.UpdateUserResponse;
 import com.wangzhe.service.TokenService;
 import com.wangzhe.service.UserService;
@@ -81,7 +85,7 @@ public class UserController extends BaseController{
 	}
 	
 	@RequestMapping(value="/updateUser", method=RequestMethod.POST)
-	public @ResponseBody UpdateUserResponse updateUser(@RequestParam("userName") String userName, 
+	public @ResponseBody UpdateUserResponse updateUser(HttpServletRequest request,
 			@RequestParam("field") String field, @RequestParam("value") Object value){
 		UpdateUserResponse response = null;
 		boolean canUpdate = true;
@@ -98,8 +102,28 @@ public class UserController extends BaseController{
 		}
 		
 		if(canUpdate){
+			String userName = (String) request.getAttribute("userName");
 			UserBean userBean = userService.updateUser(userName, field, value);
 			response = new UpdateUserResponse(0, "success", userBean);
+		}
+		
+		return response;
+	}
+	
+	@RequestMapping("/searchUser")
+	public @ResponseBody SearchUserResponse searchUser(@RequestParam("search") String search){
+		SearchUserResponse response = null;
+		
+		if(search != null && !"".equals(search)){
+			List<UserBean> userBeans = userService.searchUser(UserBean.USERNAME, search);
+			if(userBeans != null && !userBeans.isEmpty()){
+				for(UserBean userBean : userBeans){
+					userBean.setPassWord(null);
+				}
+			}
+			response = new SearchUserResponse(0, "success", userBeans);
+		}else {
+			response = new SearchUserResponse(1, "param_invalid", null);
 		}
 		
 		return response;
@@ -109,4 +133,12 @@ public class UserController extends BaseController{
 		userBean = userService.getUserByParams(userBean);
 		return userBean;
 	} 
+	
+	@RequestMapping("/syncUserData")
+	public @ResponseBody SyncUserResponse syncUser(HttpServletRequest request, @RequestParam("modifyDate") Long modifyDate){
+		String userName = (String) request.getAttribute("userName");
+		List<UserBean> updatedData = userService.getUpdatedData(userName, modifyDate);
+		SyncUserResponse response = new SyncUserResponse(0, "success", updatedData);
+		return response;
+	}
 }

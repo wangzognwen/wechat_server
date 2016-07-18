@@ -1,5 +1,7 @@
 package com.wangzhe.interceptor;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -31,12 +33,16 @@ public class DefaultInterceptor implements HandlerInterceptor{
 
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
 			Object arg2) throws Exception {
-		String token = (String) request.getAttribute("token");
-		int resultCode = tokenService.checkToken(token);
+		String token = (String) request.getParameter("token");
+		Map<String, Object> result = tokenService.checkToken(token);
+		int resultCode = (Integer) result.get("code");
 		if(resultCode == BaseResponse.TOKEN_INVALID){
 			throw new TokenException(BaseResponse.TOKEN_INVALID, "token_invalid");
 		}else if (resultCode == BaseResponse.TOKEN_EXPIRED) {
 			throw new TokenException(BaseResponse.TOKEN_EXPIRED, "token_expired");
+		}else {
+			String userName = (String) result.get("userName");
+			request.setAttribute("userName", userName);
 		}
 		return true;
 	}

@@ -45,8 +45,8 @@ public class UserServiceImpl implements UserService{
 		userDao.deleteObj(userid);
 	}
 
+	@Transactional
 	public List<UserBean> searchUser(String propName, String value) {
-		// TODO Auto-generated method stub
 		return userDao.searchUser(propName, value);
 	}
 
@@ -112,6 +112,12 @@ public class UserServiceImpl implements UserService{
 		userBean.setUserName(userName);
 		userBean = getUserByParams(userBean);
 		return userBean;
+	}
+
+	@Transactional
+	public List<UserBean> getUpdatedData(String userName,
+			long modifyDate) {
+		return userDao.getMyFriendsByModifyDate(userName, modifyDate);
 	}
 
 	

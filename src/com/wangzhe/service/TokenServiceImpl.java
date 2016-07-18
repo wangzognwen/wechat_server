@@ -9,6 +9,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,19 +64,22 @@ public class TokenServiceImpl implements TokenService{
 	}
 
 	@Transactional
-	public int checkToken(String token) {
-		int code = BaseResponse.TOKEN_INVALID;
+	public Map<String, Object> checkToken(String token) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("code", BaseResponse.TOKEN_INVALID);
 		try {
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			Jwt<Header, Claims> jwt = Jwts.parser().setSigningKey(keyUtil.getPublicKey()).parse(token);
 			String userName = (String) jwt.getBody().get(UserBean.USERNAME);
 			Long expTime = (Long) jwt.getBody().get("tokenExpired");
 			if(userName == null || expTime == null || !userService.isUserExist(userName)){
-				code = BaseResponse.TOKEN_INVALID;			
+				result.put("code", BaseResponse.TOKEN_INVALID);		
 			}else if(expTime < System.currentTimeMillis()){  //token已经过期了
-				code = BaseResponse.TOKEN_EXPIRED;
+				result.put("code", BaseResponse.TOKEN_EXPIRED);
 			}else {
-				code = 0;
+				result.put("code", 0);
+				result.put("userName", userName);
+				result.put("tokenExpired", expTime);
 			}
 		}catch (SignatureException e) {
 			LOGGER.error(e.getMessage());
@@ -82,6 +87,6 @@ public class TokenServiceImpl implements TokenService{
 			LOGGER.error(e.getMessage());
 		}
 		
-		return code;
+		return result;
 	}
 }

@@ -2,6 +2,8 @@ package com.wangzhe.controller;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,19 +24,18 @@ public class FriendController extends BaseController{
 	private FriendService friendService;
 	
 	@RequestMapping(value="/getMyFriends")
-	public @ResponseBody GetFriendsResponse getFriends(@RequestParam(value = "ownerName", required = false) String ownerName, 
+	public @ResponseBody GetFriendsResponse getFriends(HttpServletRequest request, 
 			@RequestParam(value = "modifyDate", required = false) Long modifyDate){
 		GetFriendsResponse response = null;
-		if(ownerName == null || "".equals(modifyDate)){
-			response = new GetFriendsResponse(1, "param_is_invalid", null);
-		}else {
-			long lastModifyDate = 0;
-			try{
-				lastModifyDate = modifyDate.longValue();
-			}catch(Exception e){}
-			List<FriendBean> friendBeans = friendService.getFriendsByOwnerName(ownerName, lastModifyDate);
-			response = new GetFriendsResponse(0, "success", friendBeans);
-		}
+		String ownerName = (String) request.getAttribute("userName");
+
+		long lastModifyDate = 0;
+		try{
+			lastModifyDate = modifyDate.longValue();
+		}catch(Exception e){}
+		List<FriendBean> friendBeans = friendService.getFriendsByOwnerName(ownerName, lastModifyDate);
+		response = new GetFriendsResponse(0, "success", friendBeans);
+
 		return response;
 	}
 }

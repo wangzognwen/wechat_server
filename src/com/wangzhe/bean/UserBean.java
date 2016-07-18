@@ -1,5 +1,6 @@
 package com.wangzhe.bean;
 
+import java.math.BigInteger;
 import java.util.Date;
 
 import javax.persistence.Entity;
@@ -7,22 +8,25 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.Length;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.wangzhe.util.CustomDateSerialize;
 
 @Entity
 @Table(name="wcuser")
+@JsonIgnoreProperties(value = "passWord")
 public class UserBean {
 	
 	public static final String ID = "id";
 	public static final String USERNAME = "userName";
 	public static final String PASSWORD = "passWord";
-	public static final String NICKNAME = "nickname";
+	public static final String NICKNAME = "nickName";
 	public static final String HEADURL = "headUrl";
 	public static final String SIGNATURE = "signature";
 	public static final String SEX = "sex";
@@ -51,7 +55,7 @@ public class UserBean {
     private String type;// N-普通用户 P-公众号
     @JsonSerialize(using = CustomDateSerialize.class)
     private Date createDate; //创建账号日期
-    private Long modifyDate; //修改信息日期
+    private BigInteger modifyDate; //修改信息日期
 
     public UserBean(){
 
@@ -75,7 +79,7 @@ public class UserBean {
 		this.userName = userName;
 	}
 
-	
+	@JsonIgnore
 	public String getPassWord() {
 		return passWord;
 	}
@@ -164,11 +168,11 @@ public class UserBean {
 		this.createDate = createDate;
 	}
 
-	public Long getModifyDate() {
+	public BigInteger getModifyDate() {
 		return modifyDate;
 	}
 
-	public void setModifyDate(Long modifyDate) {
+	public void setModifyDate(BigInteger modifyDate) {
 		this.modifyDate = modifyDate;
 	}
 

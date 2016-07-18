@@ -21,4 +21,5 @@ public interface UserService {
 	public List<UserBean> searchUserByM(String search,int ownerid);
 	public String getPhotoByUName(String uname);
 	public UserBean updateUser(String userName, String field, Object value);
+	public List<UserBean> getUpdatedData(String userName, long modifyDate);
 }

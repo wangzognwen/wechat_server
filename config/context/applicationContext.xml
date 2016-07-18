@@ -38,14 +38,14 @@
             
    	<mvc:resources location="/resources/" mapping="/resources/**"></mvc:resources>
    	
-   	<mvc:interceptors>
+   <mvc:interceptors>
    		<mvc:interceptor>
-   			<mvc:mapping path="/"/>
+   			<mvc:mapping path="/*"/>
    			<mvc:exclude-mapping path="/addUser"/>
    			<mvc:exclude-mapping path="/login"/> 
    			<bean class="com.wangzhe.interceptor.DefaultInterceptor"></bean>
    		</mvc:interceptor>
-   	</mvc:interceptors>
+   	</mvc:interceptors> 
           
   	<!--   数据源连接池 -->
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
