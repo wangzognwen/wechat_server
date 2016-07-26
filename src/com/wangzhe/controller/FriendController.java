@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import com.wangzhe.bean.FriendBean;
+import com.wangzhe.response.BaseResponse;
 import com.wangzhe.response.GetFriendsResponse;
 import com.wangzhe.service.FriendService;
 
@@ -38,4 +39,5 @@ public class FriendController extends BaseController{
 
 		return response;
 	}
+	
 }

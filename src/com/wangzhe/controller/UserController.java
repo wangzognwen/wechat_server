@@ -32,7 +32,7 @@ import com.wangzhe.response.LoginResponse;
 import com.wangzhe.response.RegisterResponse;
 import com.wangzhe.response.SearchUserResponse;
 import com.wangzhe.response.SyncUserResponse;
-import com.wangzhe.response.UpdateUserResponse;
+import com.wangzhe.response.UserResponse;
 import com.wangzhe.service.TokenService;
 import com.wangzhe.service.UserService;
 import com.wangzhe.util.keyUtil;
@@ -55,7 +55,7 @@ public class UserController extends BaseController{
 			loginResponse = new LoginResponse(1, "userName or passWord is not right", null);
 			return loginResponse;
 		}
-		userBean = getUser(userBean);
+		userBean = userService.getUserByParams(userBean);
 		if(userBean != null){
 			String token = tokenService.newToken(userBean.getUserName());
 			loginResponse = new LoginResponse(0, "success", token, userBean);
@@ -85,18 +85,18 @@ public class UserController extends BaseController{
 	}
 	
 	@RequestMapping(value="/updateUser", method=RequestMethod.POST)
-	public @ResponseBody UpdateUserResponse updateUser(HttpServletRequest request,
+	public @ResponseBody UserResponse updateUser(HttpServletRequest request,
 			@RequestParam("field") String field, @RequestParam("value") Object value){
-		UpdateUserResponse response = null;
+		UserResponse response = null;
 		boolean canUpdate = true;
 		if(field.equals("") || field.equals(UserBean.USERNAME) || field.equals(UserBean.ID)
 				|| field.equals(UserBean.CREATEDATE) || field.equals(UserBean.MODIFYDATE)){
-			response = new UpdateUserResponse(1, "refuse_modify", null);
+			response = new UserResponse(1, "refuse_modify", null);
 			canUpdate = false;
 		}else if(field.equals(UserBean.PASSWORD)){
 			String passWord = (String) value;
 			if(passWord.length() < 6 || passWord.length() > 16){
-				response = new UpdateUserResponse(2, "modified_value_invalid", null);
+				response = new UserResponse(2, "modified_value_invalid", null);
 				canUpdate = false;
 			}
 		}
@@ -104,7 +104,7 @@ public class UserController extends BaseController{
 		if(canUpdate){
 			String userName = (String) request.getAttribute("userName");
 			UserBean userBean = userService.updateUser(userName, field, value);
-			response = new UpdateUserResponse(0, "success", userBean);
+			response = new UserResponse(0, "success", userBean);
 		}
 		
 		return response;
@@ -129,16 +129,31 @@ public class UserController extends BaseController{
 		return response;
 	}
 	
-	private UserBean getUser(UserBean userBean){
-		userBean = userService.getUserByParams(userBean);
-		return userBean;
-	} 
-	
 	@RequestMapping("/syncUserData")
 	public @ResponseBody SyncUserResponse syncUser(HttpServletRequest request, @RequestParam("modifyDate") Long modifyDate){
 		String userName = (String) request.getAttribute("userName");
 		List<UserBean> updatedData = userService.getUpdatedData(userName, modifyDate);
 		SyncUserResponse response = new SyncUserResponse(0, "success", updatedData);
 		return response;
+	}
+	
+	@RequestMapping("/queryUser")
+	public @ResponseBody UserResponse queryUser(@RequestParam("queryName") String queryName, 
+			@RequestParam("modifyDate") Long modifyDate){
+		UserResponse userResponse = null;
+		UserBean userBean = new UserBean();
+		userBean.setUserName(queryName);
+		userBean = userService.getUserByParams(userBean);
+		
+		if(userBean == null){
+			userResponse = new UserResponse(1, "user_not_exist", null);
+		}else{
+			userResponse = new UserResponse(0, "success", null);
+			if(userBean.getModifyDate().longValue() > modifyDate){  //服务器端有更新的数据了
+				userResponse.setUserBean(userBean);  //返回最新数据
+			}
+		}
+		
+		return userResponse;		
 	}
 }

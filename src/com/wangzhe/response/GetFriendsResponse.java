@@ -12,4 +12,14 @@ public class GetFriendsResponse extends BaseResponse{
 		this.friendBeans = friendBeans;
 	}
 
+	public List<FriendBean> getFriendBeans() {
+		return friendBeans;
+	}
+
+	public void setFriendBeans(List<FriendBean> friendBeans) {
+		this.friendBeans = friendBeans;
+	}
+	
+	
+
 }

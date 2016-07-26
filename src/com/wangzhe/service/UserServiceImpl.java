@@ -117,7 +117,11 @@ public class UserServiceImpl implements UserService{
 	@Transactional
 	public List<UserBean> getUpdatedData(String userName,
 			long modifyDate) {
-		return userDao.getMyFriendsByModifyDate(userName, modifyDate);
+		List<UserBean> userBeans = userDao.getMyFriendsByModifyDate(userName, modifyDate);
+		for(UserBean userBean : userBeans){
+			System.out.println(userBean.getUserName());
+		}
+		return userBeans;
 	}
 
 	

@@ -22,6 +22,22 @@ public class FriendBean{
 	public static final String FLAG = "flag";
 	public static final String MODIFY_DATE = "modifyDate";
 	
+	public enum SubType{
+		NONE(0), FROM(1), TO(2), BOTH(3), BLOCK(4), BE_BLOCKED(5);
+		
+		private int value;
+		
+		private SubType(int value){
+			this.value = value;
+		}
+		
+		@Override
+		public String toString() {
+			// TODO Auto-generated method stub
+			return super.toString();
+		}
+	}
+	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
     private Integer friendId;

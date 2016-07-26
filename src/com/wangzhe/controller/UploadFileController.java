@@ -20,6 +20,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import com.wangzhe.bean.UserBean;
 import com.wangzhe.response.BaseResponse;
 import com.wangzhe.response.UploadFileResponse;
+import com.wangzhe.response.UserResponse;
 import com.wangzhe.service.UserService;
 import com.wangzhe.util.Config;
 
@@ -40,8 +41,8 @@ public class UploadFileController extends BaseController{
 	
 	
 	@RequestMapping(path = "/uploadAvatar")
-	public @ResponseBody UploadFileResponse uploadAvatar(HttpServletRequest request) throws IllegalStateException, IOException{
-		UploadFileResponse response = null;
+	public @ResponseBody UserResponse uploadAvatar(HttpServletRequest request) throws IllegalStateException, IOException{
+		UserResponse response = null;
 		
 		String userName = (String) request.getAttribute(UserBean.USERNAME);
 		 //创建一个通用的多部分解析器  
@@ -75,8 +76,9 @@ public class UploadFileController extends BaseController{
                 }  
             }  
               
-            userService.updateUser(userName, UserBean.HEADURL, newFileName);
-            response = new UploadFileResponse(0, "success", newFileName);
+            UserBean updateUserBean = 
+            		userService.updateUser(userName, UserBean.HEADURL, newFileName);
+            response = new UserResponse(0, "success", updateUserBean);
         }
         
         return response;

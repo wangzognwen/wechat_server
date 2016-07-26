@@ -2,13 +2,13 @@ package com.wangzhe.response;
 
 import com.wangzhe.bean.UserBean;
 
-public class UpdateUserResponse extends BaseResponse{
+public class UserResponse extends BaseResponse{
 	
 	private int code;
 	private String msg;
 	private UserBean userBean;
 	
-	public UpdateUserResponse(int code, String msg, UserBean userBean) {
+	public UserResponse(int code, String msg, UserBean userBean) {
 		super(code, msg);
 		this.code = code;
 		this.msg = msg;
