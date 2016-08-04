@@ -32,6 +32,7 @@ import com.wangzhe.response.LoginResponse;
 import com.wangzhe.response.RegisterResponse;
 import com.wangzhe.response.SearchUserResponse;
 import com.wangzhe.response.SyncUserResponse;
+import com.wangzhe.response.UserListResponse;
 import com.wangzhe.response.UserResponse;
 import com.wangzhe.service.TokenService;
 import com.wangzhe.service.UserService;
@@ -138,8 +139,7 @@ public class UserController extends BaseController{
 	}
 	
 	@RequestMapping("/queryUser")
-	public @ResponseBody UserResponse queryUser(@RequestParam("queryName") String queryName, 
-			@RequestParam("modifyDate") Long modifyDate){
+	public @ResponseBody UserResponse queryUser(@RequestParam("queryName") String queryName){
 		UserResponse userResponse = null;
 		UserBean userBean = new UserBean();
 		userBean.setUserName(queryName);
@@ -148,12 +148,17 @@ public class UserController extends BaseController{
 		if(userBean == null){
 			userResponse = new UserResponse(1, "user_not_exist", null);
 		}else{
-			userResponse = new UserResponse(0, "success", null);
-			if(userBean.getModifyDate().longValue() > modifyDate){  //服务器端有更新的数据了
-				userResponse.setUserBean(userBean);  //返回最新数据
-			}
+			userResponse = new UserResponse(0, "success", userBean);
 		}
 		
 		return userResponse;		
+	}
+	
+	@RequestMapping("getUsersByNames")
+	public @ResponseBody UserListResponse getUsersByNames(@RequestParam("userNames[]") String[] userNames){
+		List<UserBean> userBeans = userService.getUsersByNames(userNames);
+		UserListResponse response = new UserListResponse(0, "success", userBeans);
+		
+		return response;
 	}
 }

@@ -9,6 +9,7 @@ import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.SimpleExpression;
 import org.hibernate.transform.ResultTransformer;
 import org.hibernate.transform.Transformers;
 import org.springframework.stereotype.Repository;
@@ -24,6 +25,22 @@ public class UserDao extends DaoSupportImpl<UserBean> {
 			"SELECT t1.* FROM (select u.* from wcuser u, wcfriend r where " +
 			"(r.ownerName = ? and u.userName = r.contactName) and (r.subType = 'both' or r.subType = 'from')) t1" +
 			" UNION SELECT u.* from wcuser u WHERE u.userName = ?) t where t.modifyDate > ? order by t.modifyDate";
+	
+	private ResultTransformer resultTransformer = new ResultTransformer() {
+		
+		public Object transformTuple(Object[] values, String[] columns) {
+			return Transformers.aliasToBean(UserBean.class).transformTuple(values, columns);
+		}
+		
+		public List transformList(List arg0) {
+			List<UserBean> userBeans = new ArrayList<UserBean>();
+			for(Object obj : arg0){
+				UserBean userBean= (UserBean) obj;
+				userBeans.add(userBean);
+			}
+			return userBeans;
+		}
+	};
 	
 	@SuppressWarnings("unchecked")
 	public List<UserBean> searchUser(String propName,String value){
@@ -67,22 +84,23 @@ public class UserDao extends DaoSupportImpl<UserBean> {
 		sqlQuery.setString(1, userName);
 		sqlQuery.setLong(2, modifyDate);
 		
-		sqlQuery.setResultTransformer(new ResultTransformer() {
-			
-			public Object transformTuple(Object[] values, String[] columns) {
-				return Transformers.aliasToBean(UserBean.class).transformTuple(values, columns);
-			}
-			
-			public List transformList(List arg0) {
-				List<UserBean> userBeans = new ArrayList<UserBean>();
-				for(Object obj : arg0){
-					UserBean userBean= (UserBean) obj;
-					userBeans.add(userBean);
-				}
-				return userBeans;
-			}
-		});
+		sqlQuery.setResultTransformer(resultTransformer);
 		return sqlQuery.list();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<UserBean> getUsersByNames(String[] userNames){
+		SimpleExpression[] expressions = new SimpleExpression[userNames.length];
+		
+		for(int i = 0 ; i < userNames.length; i++){
+			SimpleExpression expression = Restrictions.eq(UserBean.USERNAME, userNames[i]);
+			expressions[i] = expression;
+		}
+	
+		Criteria criteria = currentSession().createCriteria(UserBean.class)
+				.add(Restrictions.or(expressions));
+		
+		return criteria.list();				
 	}
 	
 }

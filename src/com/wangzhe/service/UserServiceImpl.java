@@ -124,6 +124,13 @@ public class UserServiceImpl implements UserService{
 		return userBeans;
 	}
 
+	public List<UserBean> getUsersByNames(String[] userNames) {
+		if(userNames == null || userNames.length == 0){
+			return null;
+		}
+		return userDao.getUsersByNames(userNames);
+	}
+
 	
 
 	
