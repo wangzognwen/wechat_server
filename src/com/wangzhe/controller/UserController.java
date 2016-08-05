@@ -155,7 +155,7 @@ public class UserController extends BaseController{
 	}
 	
 	@RequestMapping("getUsersByNames")
-	public @ResponseBody UserListResponse getUsersByNames(@RequestParam("userNames[]") String[] userNames){
+	public @ResponseBody UserListResponse getUsersByNames(@RequestParam(value = "userNames[]") String[] userNames){
 		List<UserBean> userBeans = userService.getUsersByNames(userNames);
 		UserListResponse response = new UserListResponse(0, "success", userBeans);
 		

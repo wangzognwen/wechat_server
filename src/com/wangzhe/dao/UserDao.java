@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 
 import com.wangzhe.bean.UserBean;
 import com.wangzhe.dao.base.DaoSupportImpl;
+import com.wangzhe.util.TimeUtil;
 
 
 @Repository
@@ -72,7 +73,7 @@ public class UserDao extends DaoSupportImpl<UserBean> {
 	
 	public void updateUser(String userName, String field, Object value){
 		Query query = currentSession().createQuery("update UserBean set "
-				+ field + " = \'" + value + "\', modifyDate = " + System.currentTimeMillis()
+				+ field + " = \'" + value + "\', modifyDate = " + TimeUtil.getTime()
 				+ " where userName = \'" + userName + "\'");
 		query.executeUpdate();
 	}

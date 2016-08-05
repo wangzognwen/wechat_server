@@ -24,7 +24,7 @@ public class FriendController extends BaseController{
 	@Autowired
 	private FriendService friendService;
 	
-	@RequestMapping(value="/getMyFriends")
+	@RequestMapping(value="/syncFriendData")
 	public @ResponseBody GetFriendsResponse getFriends(HttpServletRequest request, 
 			@RequestParam(value = "modifyDate", required = false) Long modifyDate){
 		GetFriendsResponse response = null;

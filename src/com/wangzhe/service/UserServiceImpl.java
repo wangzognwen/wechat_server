@@ -1,6 +1,7 @@
 package com.wangzhe.service;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.wangzhe.bean.UserBean;
 import com.wangzhe.dao.UserDao;
 import com.wangzhe.util.Paging;
+import com.wangzhe.util.TimeUtil;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -77,6 +79,7 @@ public class UserServiceImpl implements UserService{
 		if(this.isUserExist(user.getUserName())){
 			return "fail";
 		}
+		user.setModifyDate(BigInteger.valueOf(TimeUtil.getTime()));
 		userDao.addObj(user);
 		return "succ";
 		
@@ -118,12 +121,10 @@ public class UserServiceImpl implements UserService{
 	public List<UserBean> getUpdatedData(String userName,
 			long modifyDate) {
 		List<UserBean> userBeans = userDao.getMyFriendsByModifyDate(userName, modifyDate);
-		for(UserBean userBean : userBeans){
-			System.out.println(userBean.getUserName());
-		}
 		return userBeans;
 	}
 
+	@Transactional
 	public List<UserBean> getUsersByNames(String[] userNames) {
 		if(userNames == null || userNames.length == 0){
 			return null;
