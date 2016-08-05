@@ -1,5 +1,6 @@
 package com.wangzhe.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +12,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+
 
 
 
@@ -130,10 +132,44 @@ public class UserController extends BaseController{
 		return response;
 	}
 	
+	/**
+	 * 客户端请求同步user表数据
+	 * @param request
+	 * @param userNames 客户端没有该用户信息的集合
+	 * @param modifyDate 客户端已存在的用户信息的modifyDate最大值
+	 * @return
+	 */
 	@RequestMapping("/syncUserData")
-	public @ResponseBody SyncUserResponse syncUser(HttpServletRequest request, @RequestParam("modifyDate") Long modifyDate){
+	public @ResponseBody SyncUserResponse syncUser(HttpServletRequest request, 
+			@RequestParam(value = "userNames[]", required = false) String[] userNames, 
+			@RequestParam("modifyDate") Long modifyDate){
 		String userName = (String) request.getAttribute("userName");
+		
+		List<UserBean> userBeans = userService.getUsersByNames(userNames);
 		List<UserBean> updatedData = userService.getUpdatedData(userName, modifyDate);
+	
+		if(userBeans != null && !userBeans.isEmpty()){
+			if(updatedData == null){
+				updatedData = new ArrayList<UserBean>();
+			}
+			if(updatedData.isEmpty()){
+				updatedData.addAll(userBeans);
+			}else {
+				for(UserBean userBean : userBeans){
+					boolean equal = false;
+					for(UserBean userBean2 : updatedData){
+						if(userBean.getUserId() == userBean2.getUserId()){
+							equal = true;
+						}
+					}
+					if(!equal){
+						updatedData.add(userBean);
+					}
+				}
+			}
+			
+		}
+		
 		SyncUserResponse response = new SyncUserResponse(0, "success", updatedData);
 		return response;
 	}

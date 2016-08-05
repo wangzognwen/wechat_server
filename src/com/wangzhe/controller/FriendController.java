@@ -40,4 +40,16 @@ public class FriendController extends BaseController{
 		return response;
 	}
 	
+	public @ResponseBody BaseResponse addFriends(HttpServletRequest request,
+			@RequestParam("contactName") String contactName){
+		String ownerName = (String) request.getAttribute("userName");
+		BaseResponse baseResponse = null;
+		if(ownerName.equals(contactName)){
+			baseResponse = new BaseResponse(1, "invalid_conactname");
+		}else {
+			
+		}
+		return baseResponse;
+	}
+	
 }
