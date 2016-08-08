@@ -3,6 +3,7 @@ package com.wangzhe.dao.base;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -11,19 +12,25 @@ import javax.persistence.Table;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Example;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.transform.ResultTransformer;
+import org.hibernate.transform.Transformers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
+import com.wangzhe.bean.UserBean;
 import com.wangzhe.util.Paging;
 
 public class DaoSupportImpl<T> implements DaoSupport<T>{
 	protected Class<?> clazz ;
 	protected Logger logger;
+	
+	protected ResultTransformer resultTransformer;
 	
 	@Autowired
 	private SessionFactory sessionFactory;
@@ -31,6 +38,25 @@ public class DaoSupportImpl<T> implements DaoSupport<T>{
 	public DaoSupportImpl() {
 		this.clazz = this.getSuperClassGenricType();
 		this.logger = Logger.getLogger(clazz);
+		
+		resultTransformer = new ResultTransformer() {
+			private static final long serialVersionUID = 1L;
+
+			public Object transformTuple(Object[] values, String[] columns) {
+				return Transformers.aliasToBean(clazz).transformTuple(values, columns);
+			}
+			
+			@SuppressWarnings("rawtypes")
+			public List transformList(List arg0) {
+				List<T> results = new ArrayList<T>();
+				for(Object obj : arg0){
+					@SuppressWarnings("unchecked")
+					T t= (T) obj;
+					results.add(t);
+				}
+				return results;
+			}
+		};
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -53,42 +79,66 @@ public class DaoSupportImpl<T> implements DaoSupport<T>{
 		return sessionFactory.getCurrentSession().createCriteria(clazz).add(Example.create(t)).list();
 	}
 	
-	public T getTByParams(Map<String, Object> params) {
-		List<T> results = getAllByParams(params);
-		if(results != null && results.size() > 0){
+	@SuppressWarnings("null")
+	public T getTByParams(List<WhereItem> whereItems) {
+		List<T> results = getAllByParams(whereItems);
+		if(results != null && !results.isEmpty()){
 			return results.get(0);
 		}
 		return null;
 	}
-
+	
 	@SuppressWarnings("unchecked")
-	public List<T> getAllByParams(Map<String, Object> params) {
-		Criteria criteria = currentSession().createCriteria(clazz);
-		if(params != null){
-			for(String key : params.keySet()){
-				if(key.equals("modifyDate")){
-					criteria.addOrder(Order.asc("modifyDate"))
-						.add(Restrictions.gt("modifyDate", params.get(key)));
+	public List<T> getAllByParams(List<WhereItem> whereItems) {
+		String tableName = ((Table) clazz.getAnnotation(Table.class)).name();
+		StringBuffer stringBuffer = new StringBuffer("select * from " + tableName + " where 1 = 1");
+		if(whereItems != null && !whereItems.isEmpty()){
+			for(WhereItem whereItem : whereItems){
+				String key = whereItem.getKey();
+				String connector = whereItem.getConnector();
+				Object value = whereItem.getValue();
+				stringBuffer.append(" and ").append(key).append(" " + connector + " ");
+				
+				if(value instanceof List){
+					List list = (List) value;
+					for(Object obj : list){
+						stringBuffer.append("(' ").append(obj).append(", ");
+					}
+					stringBuffer.delete(stringBuffer.lastIndexOf(","), stringBuffer.length());
+					stringBuffer.append(")");
 				}else {
-					criteria.add(Restrictions.eq(key, params.get(key)));
+					stringBuffer.append("'").append(value).append("'");
 				}
 			}
 		}
-		return criteria.list();
+		
+		SQLQuery sqlQuery = currentSession().createSQLQuery(stringBuffer.toString());
+		sqlQuery.setResultTransformer(resultTransformer);
+		
+		return sqlQuery.list();
 	}
+
+	@SuppressWarnings("unchecked")
+	public T getTBySqlQuery(String sqlQuery) {
+		SQLQuery query = currentSession().createSQLQuery(sqlQuery);
+		query.setResultTransformer(resultTransformer);
+		return (T) query.uniqueResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<T> getAllBySqlQuery(String sqlQuery) {
+		SQLQuery query = currentSession().createSQLQuery(sqlQuery);
+		query.setResultTransformer(resultTransformer);
+		return query.list();
+	}
+
 
 	public void updateObj(T t) {
 		sessionFactory.getCurrentSession().update(t);
 	}
 
-	public boolean addObj(T t) {
-		try {
-			currentSession().save(t);
-			return true;
-		} catch (Exception e) {		
-			logger.error(e.getMessage());
-			return false;
-		}
+	public void addObj(T t) {
+		currentSession().save(t);
 	}
 
 	public void deleteObj(int id) {
@@ -119,5 +169,6 @@ public class DaoSupportImpl<T> implements DaoSupport<T>{
 	public final Session currentSession() {
 		return sessionFactory.getCurrentSession();
 	}
+	
 	
 }

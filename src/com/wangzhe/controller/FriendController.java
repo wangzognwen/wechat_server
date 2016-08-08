@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.http.util.TextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import com.wangzhe.bean.FriendBean;
+import com.wangzhe.bean.FriendBean.SubType;
 import com.wangzhe.response.BaseResponse;
 import com.wangzhe.response.GetFriendsResponse;
 import com.wangzhe.service.FriendService;
@@ -40,14 +42,21 @@ public class FriendController extends BaseController{
 		return response;
 	}
 	
+	@RequestMapping(value="/addFriend")
 	public @ResponseBody BaseResponse addFriends(HttpServletRequest request,
 			@RequestParam("contactName") String contactName){
 		String ownerName = (String) request.getAttribute("userName");
 		BaseResponse baseResponse = null;
-		if(ownerName.equals(contactName)){
+		if(TextUtils.isEmpty(contactName) || ownerName.equals(contactName)){
 			baseResponse = new BaseResponse(1, "invalid_conactname");
 		}else {
-			
+			if(friendService.isFriends(ownerName, contactName)){
+				baseResponse = new BaseResponse(2, "have_been_friends");
+			}else {
+				friendService.addOrUpdateFriends(ownerName, contactName, null, SubType.BOTH);
+				friendService.addOrUpdateFriends(contactName, ownerName, null, SubType.BOTH);
+				baseResponse = new BaseResponse(0, "success");
+			}
 		}
 		return baseResponse;
 	}

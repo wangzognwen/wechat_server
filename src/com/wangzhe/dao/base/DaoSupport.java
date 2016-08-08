@@ -11,10 +11,12 @@ public interface DaoSupport<T> {
 	public List<T> getAll();
 	public T getTByParams(T t);
 	public List<T> getAllByParams(T t);
-	public T getTByParams(Map<String, Object> parms);
-	public List<T> getAllByParams(Map<String, Object> parmas);
+	public T getTByParams(List<WhereItem> whereItems);
+	public List<T> getAllByParams(List<WhereItem> whereItems);
+	public T getTBySqlQuery(String sqlQuery);
+	public List<T> getAllBySqlQuery(String sqlQuery);
 	public void updateObj(T t);
-	public boolean addObj(T t);
+	public void addObj(T t);
 	public void deleteObj(int id);	
 	public List<T> getObjByPaging(Paging<T> paging);
 	public Class<?> getSuperClassGenricType();

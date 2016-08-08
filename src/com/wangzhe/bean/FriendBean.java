@@ -1,5 +1,7 @@
 package com.wangzhe.bean;
 
+import java.math.BigInteger;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -23,18 +25,17 @@ public class FriendBean{
 	public static final String MODIFY_DATE = "modifyDate";
 	
 	public enum SubType{
-		NONE(0), FROM(1), TO(2), BOTH(3), BLOCK(4), BE_BLOCKED(5);
+		NONE("none"), FROM("from"), TO("to"), BOTH("both"), BLOCK("block"), BE_BLOCKED("be_blocked");
 		
-		private int value;
+		private String subType;
 		
-		private SubType(int value){
-			this.value = value;
+		private SubType(String type){
+			this.subType = type;
 		}
 		
 		@Override
 		public String toString() {
-			// TODO Auto-generated method stub
-			return super.toString();
+			return subType;
 		}
 	}
 	
@@ -46,7 +47,7 @@ public class FriendBean{
     private String subType;
     private String remark;
     private Integer flag;
-    private Long modifyDate;
+    private BigInteger modifyDate;
 
     public FriendBean(){
 
@@ -100,11 +101,11 @@ public class FriendBean{
 		this.flag = flag;
 	}
 
-	public Long getModifyDate() {
+	public BigInteger getModifyDate() {
 		return modifyDate;
 	}
 
-	public void setModifyDate(Long modifyDate) {
+	public void setModifyDate(BigInteger modifyDate) {
 		this.modifyDate = modifyDate;
 	}
     

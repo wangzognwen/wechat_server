@@ -1,5 +1,7 @@
 package com.wangzhe.controller;
 
+import java.sql.SQLException;
+
 import org.aspectj.weaver.reflect.IReflectionWorld;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,6 +18,8 @@ public class BaseController {
 			baseResponse = new BaseResponse(BaseResponse.PARAM_MISS, "missing_param");
 		}else if (ex instanceof TokenException) {
 			baseResponse = new BaseResponse(BaseResponse.TOKEN_EXPIRED, "token_expired");
+		}else if(ex instanceof SQLException){
+			baseResponse = new BaseResponse(BaseResponse.SQL_EXCEPTION, "database_error");
 		}else{
 			baseResponse = new BaseResponse(BaseResponse.SERVER_ERROR, "internal_server_error");
 		}

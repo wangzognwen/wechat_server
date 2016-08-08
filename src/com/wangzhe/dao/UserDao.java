@@ -27,21 +27,7 @@ public class UserDao extends DaoSupportImpl<UserBean> {
 			"(r.ownerName = ? and u.userName = r.contactName) and (r.subType = 'both' or r.subType = 'from')) t1" +
 			" UNION SELECT u.* from wcuser u WHERE u.userName = ?) t where t.modifyDate > ? order by t.modifyDate";
 	
-	private ResultTransformer resultTransformer = new ResultTransformer() {
-		
-		public Object transformTuple(Object[] values, String[] columns) {
-			return Transformers.aliasToBean(UserBean.class).transformTuple(values, columns);
-		}
-		
-		public List transformList(List arg0) {
-			List<UserBean> userBeans = new ArrayList<UserBean>();
-			for(Object obj : arg0){
-				UserBean userBean= (UserBean) obj;
-				userBeans.add(userBean);
-			}
-			return userBeans;
-		}
-	};
+	
 	
 	@SuppressWarnings("unchecked")
 	public List<UserBean> searchUser(String propName,String value){
