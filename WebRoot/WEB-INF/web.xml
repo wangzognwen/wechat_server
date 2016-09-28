@@ -7,7 +7,7 @@
 	version="2.5" >
   <display-name></display-name>	
   <welcome-file-list>
-    <welcome-file>login.jsp</welcome-file>
+    <welcome-file>resources/index.html</welcome-file>
   </welcome-file-list>
   
   <servlet>
